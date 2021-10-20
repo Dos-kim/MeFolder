@@ -179,7 +179,7 @@ def main_loop():
 
     mobq = []
 
-    for i in range(5):
+    for i in range(0,3+1):
         find_mob = i % 3
         mobq += [mob_s()]
 
@@ -189,7 +189,7 @@ def main_loop():
         # for mob_s in mobq:
         #     mob_s.action()
 
-        for i in range(5):
+        for i in range(4):
             mobq[i].draw()
         mdog.action()
         dog_events(mdog)
