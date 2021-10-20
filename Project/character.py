@@ -1,14 +1,15 @@
 from pico2d import *
-import pico2d
+import random
 
-direct = 0
-upco = 0
+direct = 0 # 방향을 위한 변수
+upco = 0  # 점프를 위한 변수
+start = True
 
 class main_char:
 
     def __init__(self):
         global direct
-        self.image = load_image('sdog.png')
+        self.image = load_image('sdog.png') # 13752/12 =  573, 5230 /
         self.x, self.y = 500, 300
         self.frame = 12
         self.direction = 0
@@ -45,7 +46,7 @@ class main_char:
             if self.frame == 19:
                 self.frame = 12
         elif self.direction == -1:
-            self.frame -= 1 # 3 ~ 11
+            self.frame -= 1 # 5 ~ 11
             self.x += self.direction * 5
             if self.frame == 5:
                 self.frame = 11
@@ -96,6 +97,52 @@ class main_char:
 
         self.image.clip_draw(self.frame * 573, 523 * 6, 573, 523, self.x, self.y, 100, 100)
 
+class mob_s:
+
+    def __init__(self):
+        global find_mob
+        self.image = []
+        self.image.append(load_image('mmonkey.png')) # 5760/12 = 480 , 3840 / 8 = 480
+        self.image.append(load_image('mbird.png')) # 3840/12 = 320 , 2560 / 8 = 320
+        self.image.append(load_image('mcat.png')) # 5760/12 = 480 , 3840 / 8 = 480
+        self.x, self.y = random.randint(100, 1400), 300 # x 축위치 랜덤
+        self.species = random.randint(0, 7) # 8종의 몹 색깔중 랜덤
+        if self.species > 3:
+            self.frame = (self.species - 4) * 3 #시작 프레임위치
+        else:
+            self.frame = self.species * 3
+        self.round = self.x
+        self.mob = find_mob
+
+    def action(self):
+
+        self.draw()
+
+    def get_frame(self):
+
+        self.frame = ((self.frame + 1) % 3) + (self.species * 3)
+
+    def draw(self):
+
+        self.get_frame()
+
+        if self.species > 3:
+            if self.mob == 0:
+                self.image[self.mob].clip_draw(self.frame * 480, 480 * 5, 480, 480, self.x, self.y, 100, 100)
+            elif self.mob == 1:
+                self.image[self.mob].clip_draw(self.frame * 320, 320 * 5, 320, 320, self.x, self.y, 100, 100)
+            elif self.mob == 2:
+                self.image[self.mob].clip_draw(self.frame * 480, 480 * 5, 480, 480, self.x, self.y, 100, 100)
+        else:
+            if self.mob == 0:
+                self.image[self.mob].clip_draw(self.frame * 480, 480 * 1, 480, 480, self.x, self.y, 100, 100)
+            elif self.mob == 1:
+                self.image[self.mob].clip_draw(self.frame * 320, 320 * 1, 320, 320, self.x, self.y, 100, 100)
+            elif self.mob == 2:
+                self.image[self.mob].clip_draw(self.frame * 480, 480 * 1, 480, 480, self.x, self.y, 100, 100)
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 def dog_events(dog):
     global start, direct, upco
@@ -110,33 +157,44 @@ def dog_events(dog):
                 direct = -1
             elif event.key == SDLK_SPACE:
                 upco = 1
-
+            elif event.key == SDLK_ESCAPE:
+                start = False
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_RIGHT:
                 direct = 0
-                if c_int == 79:
-                    direct = -1
             elif event.key == SDLK_LEFT:
                 direct = 0
-                if c_int == 80:
-                    direct = 1
             elif event.key == SDLK_SPACE:
                 upco = -1
 
 
-open_canvas(1600, 900)
+def main_loop():
+    global find_mob
 
-mdog = main_char()
+    open_canvas(1600, 900)
 
-start = True
+    mdog = main_char()
 
-while start:
+    mobq = []
 
-    dog_events(mdog)
-    delay(0.03)
-    clear_canvas()
-
-    mdog.action()
+    for i in range(4):
+        find_mob = random.randint(0,2)
+        mobq += [mob_s()]
 
 
-    update_canvas()
+    while start:
+        clear_canvas()
+        # for mob_s in mobq:
+        #     mob_s.action()
+        for i in range(3):
+            mobq[i].action()
+        mdog.action()
+        dog_events(mdog)
+        delay(0.03)
+
+        update_canvas()
+
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+
