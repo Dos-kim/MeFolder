@@ -43,12 +43,12 @@ class main_char:
         if self.direction == 1:
             self.frame += 1
             self.x += self.direction * 5
-            if self.frame == 19:
+            if self.frame >= 19:
                 self.frame = 12
         elif self.direction == -1:
             self.frame -= 1 # 5 ~ 11
             self.x += self.direction * 5
-            if self.frame == 5:
+            if self.frame <= 5:
                 self.frame = 11
 
         if self.jumc > 7:
@@ -101,22 +101,28 @@ class mob_s:
 
     def __init__(self):
         global find_mob
-        self.image = []
-        self.image.append(load_image('mmonkey.png')) # 5760/12 = 480 , 3840 / 8 = 480
-        self.image.append(load_image('mbird.png')) # 3840/12 = 320 , 2560 / 8 = 320
-        self.image.append(load_image('mcat.png')) # 5760/12 = 480 , 3840 / 8 = 480
-        self.x, self.y = random.randint(100, 1400), 300 # x 축위치 랜덤
+
+        self.mob = find_mob
+
+        if self.mob == 0:
+            self.image = load_image('mmonkey.png') # 5760/12 = 480 , 3840 / 8 = 480
+        elif self.mob == 1:
+            self.image = load_image('mbird.png') # 3840/12 = 320 , 2560 / 8 = 320
+        elif self.mob == 2:
+            self.image = load_image('mcat.png') # 5760/12 = 480 , 3840 / 8 = 480
+
         self.species = random.randint(0, 7) # 8종의 몹 색깔중 랜덤
+
+        self.x, self.y = random.randint(100, 1400), 270 # x 축위치 랜덤
+
         if self.species > 3:
             self.frame = (self.species - 4) * 3 #시작 프레임위치
         else:
             self.frame = self.species * 3
         self.round = self.x
-        self.mob = find_mob
 
     def action(self):
-
-        self.draw()
+        pass
 
     def get_frame(self):
 
@@ -127,19 +133,15 @@ class mob_s:
         self.get_frame()
 
         if self.species > 3:
-            if self.mob == 0:
-                self.image[self.mob].clip_draw(self.frame * 480, 480 * 5, 480, 480, self.x, self.y, 100, 100)
+            if self.mob == 0 or self.mob == 2:
+                self.image.clip_draw(self.frame * 480, 480 * 5, 480, 480, self.x, self.y, 80, 80)
             elif self.mob == 1:
-                self.image[self.mob].clip_draw(self.frame * 320, 320 * 5, 320, 320, self.x, self.y, 100, 100)
-            elif self.mob == 2:
-                self.image[self.mob].clip_draw(self.frame * 480, 480 * 5, 480, 480, self.x, self.y, 100, 100)
+                self.image.clip_draw(self.frame * 320, 320 * 5, 320, 320, self.x, self.y, 80, 80)
         else:
-            if self.mob == 0:
-                self.image[self.mob].clip_draw(self.frame * 480, 480 * 1, 480, 480, self.x, self.y, 100, 100)
+            if self.mob == 0 or self.mob == 2:
+                self.image.clip_draw(self.frame * 480, 480 * 1, 480, 480, self.x, self.y, 80, 80)
             elif self.mob == 1:
-                self.image[self.mob].clip_draw(self.frame * 320, 320 * 1, 320, 320, self.x, self.y, 100, 100)
-            elif self.mob == 2:
-                self.image[self.mob].clip_draw(self.frame * 480, 480 * 1, 480, 480, self.x, self.y, 100, 100)
+                self.image.clip_draw(self.frame * 320, 320 * 1, 320, 320, self.x, self.y, 80, 80)
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -177,8 +179,8 @@ def main_loop():
 
     mobq = []
 
-    for i in range(4):
-        find_mob = random.randint(0,2)
+    for i in range(5):
+        find_mob = i % 3
         mobq += [mob_s()]
 
 
@@ -186,8 +188,9 @@ def main_loop():
         clear_canvas()
         # for mob_s in mobq:
         #     mob_s.action()
-        for i in range(3):
-            mobq[i].action()
+
+        for i in range(5):
+            mobq[i].draw()
         mdog.action()
         dog_events(mdog)
         delay(0.03)
