@@ -1,3 +1,8 @@
-from character import *
+import game_framework
+import pico2d
 
-main_loop()
+import main_state
+
+pico2d.open_canvas()
+game_framework.run(main_state)
+pico2d.close_canvas()
