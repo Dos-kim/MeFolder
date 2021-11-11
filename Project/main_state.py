@@ -7,29 +7,26 @@ from pico2d import *
 import game_framework
 
 
-from boy import Boy
-from grass import Grass
+from character import Main_char
 
 
 
 name = "MainState"
 
-boy = None
-grass = None
-font = None
+main_char = None
+
 
 
 
 def enter():
-    global boy, grass
-    boy = Boy()
-    grass = Grass()
+    global main_char
+    main_char = Main_char()
+
+
 
 
 def exit():
-    global boy, grass
-    del boy
-    del grass
+    pass
 
 
 
@@ -41,7 +38,7 @@ def resume():
     pass
 
 
-def handle_events():
+def key_events():
     events = get_events()
     for event in events:
         if event.type == SDL_QUIT:
@@ -49,17 +46,18 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
                 game_framework.quit()
         else:
-            boy.handle_event(event)
+            main_char.key_event(event)
 
 
 
-def update():
-    boy.update()
+def do():
+    main_char.do()
+    #If my computer dont' use delay, frame_rate => 500
+    delay(0.05)
 
 def draw():
     clear_canvas()
-    grass.draw()
-    boy.draw()
+    main_char.draw()
     update_canvas()
 
 
