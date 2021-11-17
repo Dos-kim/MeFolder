@@ -1,22 +1,22 @@
 from pico2d import *
 
-# Need Number
+# Location Number
 RIGHT = 12
 LEFT = 11
 STANDING = 9
 JUMPUP = 8
 JUMPDOWN = 7
-
+RUNNING = 6
 # time
 
 # main event
 
 RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, \
-LSHIFT_DOWN, LSHIFT_UP, BACK_TIMER, SPACE_DOWN, SPACE_UP = range(9)
+LSHIFT_DOWN, LSHIFT_UP, BACKR_TIMER, SPACE_DOWN, SPACE_UP, BACKS_TIMER = range(10)
 
 # key table
 key_event_table = {
-    #main move
+    #move
     (SDL_KEYDOWN, SDLK_RIGHT): RIGHT_DOWN,
     (SDL_KEYDOWN, SDLK_LEFT): LEFT_DOWN,
     (SDL_KEYUP, SDLK_RIGHT): RIGHT_UP,
@@ -29,51 +29,146 @@ key_event_table = {
     (SDL_KEYUP, SDLK_SPACE): SPACE_UP
 }
 
+# Speed
+
+PPM = (10.0 / 0.3)              # 10 pixel 30 cm pixel per meter
+RSPH = 20.0                     # Km / Hour , run speed
+RSPM = (RSPH * 1000.0 / 60.0)   # Meter / Minute , run speed
+RSPS = (RSPM / 60.0)            # Meter / Sec , run speed
+RUN_SPEED_PPS = (RSPS * PPM)    # Pixel / Sec , run speed
+
 
 
 #-------------------character action------------
 #-------------------character action------------
 class JumpState:
     def enter(main_char, event):
-        pass
+        if event == SPACE_DOWN:
+            main_char.timer = 1000
+        elif event == SPACE_UP:
+            if main_char.timer >= 500:
+                main_char.timer = 500
+
+        if event == RIGHT_DOWN:
+            main_char.velocity += 1
+        elif event == LEFT_DOWN:
+            main_char.velocity -= 1
+        elif event == RIGHT_UP:
+            main_char.velocity -= 1
+        elif event == LEFT_UP:
+            main_char.velocity += 1
 
     def exit(main_char, event):
         pass
 
     def do(main_char):
-        pass
+        #frame
+        if main_char.dir > 0:
+            main_char.frame += 1
+            if main_char.frame >= RIGHT + 6:
+                main_char.frame = RIGHT
+        elif main_char.dir < 0:
+            main_char.frame -= 1
+            if main_char.frame <= LEFT - 6:
+                main_char.frame = LEFT
+        #jump time
+        main_char.timer -= 1
+        if main_char.timer > 500:
+            main_char.y += 5
+            if main_char.y >= 300:
+                main_char.y = 300
+                main_char.timer = 500
+        elif main_char.timer <= 500:
+            main_char.y -= 5
+            if main_char.y <= 90:
+                main_char.y = 90
+                main_char.timer = 0
+                if main_char.velocity != 0:
+                    main_char.add_event(BACKR_TIMER)
+                else:
+                    main_char.add_event(BACKS_TIMER)
+
+        # side move
+        main_char.x += main_char.velocity
+        main_char.x = clamp(25, main_char.x, 1600 - 25)
 
     def draw(main_char):
-        pass
+
+        if main_char.timer > 500:
+            if main_char.dir > 0:
+                main_char.image.clip_draw(main_char.frame * 573, 523 * JUMPUP, 573, 523, main_char.x, main_char.y, 100, 100)
+            else:
+                main_char.image.clip_draw(main_char.frame * 573, 523 * JUMPUP, 573, 523, main_char.x, main_char.y, 100, 100)
+        elif main_char.timer <= 500:
+            if main_char.dir > 0:
+                main_char.image.clip_draw(main_char.frame * 573, 523 * JUMPDOWN, 573, 523, main_char.x, main_char.y, 100, 100)
+            else:
+                main_char.image.clip_draw(main_char.frame * 573, 523 * JUMPDOWN, 573, 523, main_char.x, main_char.y, 100, 100)
 
 class StandState:
     def enter(main_char, event):
-        pass
+        if event == RIGHT_DOWN:
+            main_char.velocity += 1
+        elif event == LEFT_DOWN:
+            main_char.velocity -= 1
+        elif event == RIGHT_UP:
+            main_char.velocity -= 1
+        elif event == LEFT_UP:
+            main_char.velocity += 1
+
 
     def exit(main_char, event):
         pass
 
     def do(main_char):
-        main_char.frame += 1
-        if main_char.frame >= RIGHT + 7:
-            main_char.frame = RIGHT
-
+        if main_char.dir > 0:
+            main_char.frame += 1
+            if main_char.frame >= RIGHT + 6:
+                main_char.frame = RIGHT
+        elif main_char.dir < 0:
+            main_char.frame -= 1
+            if main_char.frame <= LEFT - 6:
+                main_char.frame = LEFT
 
     def draw(main_char):
-        main_char.image.clip_draw(main_char.frame * 573, 523 * STANDING, 573, 523, main_char.x, main_char.y, 100, 100)
+
+        if main_char.dir > 0:
+            main_char.image.clip_draw(main_char.frame * 573, 523 * STANDING, 573, 523, main_char.x, main_char.y, 100, 100)
+        else:
+            main_char.image.clip_draw(main_char.frame * 573, 523 * STANDING, 573, 523, main_char.x, main_char.y, 100, 100)
 
 class RunState:
     def enter(main_char, event):
-        pass
+        if event == RIGHT_DOWN:
+            main_char.velocity += 1
+        elif event == LEFT_DOWN:
+            main_char.velocity -= 1
+        elif event == RIGHT_UP:
+            main_char.velocity -= 1
+        elif event == LEFT_UP:
+            main_char.velocity += 1
+        main_char.dir = main_char.velocity
 
     def exit(main_char, event):
         pass
 
     def do(main_char):
-        pass
+        if main_char.dir > 0:
+            main_char.frame += 1
+            if main_char.frame >= RIGHT + 7:
+                main_char.frame = RIGHT
+        elif main_char.dir < 0:
+            main_char.frame -= 1
+            if main_char.frame <= LEFT - 7:
+                main_char.frame = LEFT
+        main_char.x += main_char.velocity
+        main_char.x = clamp(25, main_char.x, 1600 - 25)
 
     def draw(main_char):
-        pass
+        if main_char.dir > 0:
+            main_char.image.clip_draw(main_char.frame * 573, 523 * RUNNING, 573, 523, main_char.x, main_char.y, 100, 100)
+        else:
+            main_char.image.clip_draw(main_char.frame * 573, 523 * RUNNING, 573, 523, main_char.x, main_char.y, 100, 100)
 
 
 
@@ -81,9 +176,14 @@ class RunState:
 #-------------- key state table--------------
 
 next_state_table = {
-    StandState: {},
-    JumpState: {},
-    RunState: {},
+    StandState: {RIGHT_DOWN: RunState, LEFT_DOWN: RunState, RIGHT_UP: RunState, LEFT_UP: RunState,
+               SPACE_DOWN: JumpState, SPACE_UP: JumpState},
+
+    JumpState: {RIGHT_DOWN: JumpState, LEFT_DOWN: JumpState, RIGHT_UP: JumpState, LEFT_UP: JumpState,
+               SPACE_DOWN: JumpState, SPACE_UP: JumpState, BACKR_TIMER: RunState, BACKS_TIMER: StandState},
+
+    RunState: {RIGHT_DOWN: StandState, LEFT_DOWN: StandState, RIGHT_UP: StandState, LEFT_UP: StandState,
+               SPACE_DOWN: JumpState, SPACE_UP: JumpState},
 }
 
 
@@ -97,18 +197,18 @@ class Main_char:
         self.x, self.y = 400, 90
         self.image = load_image('sdog.png')
         self.frame = RIGHT
-        self.dir = 0
+        self.dir = 1
         self.velocity = 0
         self.timer = 0
         self.event_que = []
         self.cur_state = StandState
         self.cur_state.enter(self, None)
 
-    def add_event(self):
+    def add_event(self, event):
         #Y insert 0, event?
         self.event_que.insert(0, event)
 
-    def do(self):
+    def update(self):
         # fill here
         self.cur_state.do(self) #state doing
         if len(self.event_que) > 0:
@@ -121,7 +221,7 @@ class Main_char:
     def draw(self):
         self.cur_state.draw(self)
 
-    def key_event(self, event):
+    def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)

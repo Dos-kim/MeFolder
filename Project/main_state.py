@@ -46,14 +46,14 @@ def key_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
                 game_framework.quit()
         else:
-            main_char.key_event(event)
+            main_char.handle_event(event)
 
 
 
-def do():
-    main_char.do()
+def update():
+    main_char.update()
     #If my computer dont' use delay, frame_rate => 500
-    delay(0.05)
+    delay(0.02)
 
 def draw():
     clear_canvas()
