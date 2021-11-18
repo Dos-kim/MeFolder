@@ -91,6 +91,7 @@ def run(start_state):
     running = True
     stack = [start_state]
     start_state.enter()
+    start_state.obj_location()
     # doing
 
     global frame_time

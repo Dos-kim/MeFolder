@@ -1,32 +1,31 @@
-import random
-import json
-import os
-
 from pico2d import *
-
+import game_world
 import game_framework
 
 
 from character import Main_char
-
+from mobs import *
 
 
 name = "MainState"
 
 main_char = None
-
+mobs = None
 
 
 
 def enter():
     global main_char
     main_char = Main_char()
+    game_world.add_object(main_char, 1)
 
-
+    global mobs
+    mobs = [Bird(), Monkey(), Cat()]
+    game_world.add_objects(mobs, 1)
 
 
 def exit():
-    pass
+    game_world.clear()
 
 
 
@@ -36,7 +35,6 @@ def pause():
 
 def resume():
     pass
-
 
 def key_events():
     events = get_events()
@@ -51,16 +49,21 @@ def key_events():
 
 
 def update():
-    main_char.update()
+    for game_object in game_world.all_objects():
+        game_object.update()
     #If my computer dont' use delay, frame_rate => 500
-    delay(0.02)
 
 def draw():
     clear_canvas()
-    main_char.draw()
+    for game_object in game_world.all_objects():
+        game_object.draw()
+    delay(0.025)
     update_canvas()
 
 
+
+def obj_location():
+    pass
 
 
 
