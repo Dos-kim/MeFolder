@@ -11,7 +11,7 @@ name = "MainState"
 
 main_char = None
 mobs = None
-
+map = None
 
 
 def enter():

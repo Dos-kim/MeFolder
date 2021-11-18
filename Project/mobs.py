@@ -30,8 +30,9 @@ class Mob:
     image = None
 
     def __init__(self):
-        self.x = 800
+        self.x = 0
         self.y = 0
+        self.s_point = 0
         self.dir = 0
         self.selection = 0
         self.frame = 0
@@ -43,29 +44,32 @@ class Mob:
         if direction == None:
             direction = self.dir
         self.x = x
+        self.s_point = x
         self.y = y
         self.dir = direction
 
-    # def move_area(self, a):
-    #     if self.x >= self.x + a:
-    #         self.dir = -1
-    #     elif self.x <= self.x - a:
-    #         self.dir = 1
+    def move_area(self, a):
+        if self.x >= self.s_point + a:
+            self.x = self.s_point + a
+            self.dir = 1
+        elif self.x <= self.s_point - a:
+            self.x = self.s_point - a
+            self.dir = 0
 
     def update(self):
-        if self.x >= self.x + 500:
-            self.dir = -1
-        elif self.x <= self.x - 500:
-            self.dir = 1
-
+        self.move_area(500)
         self.frame = ((self.frame + 1) % 3) + self.selection * 3
-        self.x += self.dir * self.SPP * game_framework.frame_time
+        if self.dir == 0:
+            self.x += self.SPP * game_framework.frame_time
+        elif self.dir == 1:
+            self.x -= self.SPP * game_framework.frame_time
+        self.x = clamp(100, self.x, 1500)
 
     def draw(self):
-        if self.dir > 0: # 0 is right
-            self.image.clip_draw(self.frame * self.image_size, 0, self.image_size, self.image_size, self.x, self.y, self.Mob_size, self.Mob_size)
+        if self.dir == 0: # 0 is right
+            self.image.clip_draw(self.frame * self.image_size, 0 * self.image_size, self.image_size, self.image_size, self.x, self.y, self.Mob_size, self.Mob_size)
         else: # 1 is left
-            self.image.clip_draw(self.frame * self.image_size, 1, self.image_size, self.image_size, self.x, self.y, self.Mob_size, self.Mob_size)
+            self.image.clip_draw(self.frame * self.image_size, 1 * self.image_size, self.image_size, self.image_size, self.x, self.y, self.Mob_size, self.Mob_size)
 
 
 
@@ -75,12 +79,14 @@ class Bird(Mob):
     def __init__(self):
         if Bird.image == None:
             Bird.image = load_image('mbird.png')
-        self.x = 0
+        self.x = 800
+        self.s_point = self.x
         self.y = 800
         self.SPP = SPP_Bird
         self.Mob_size = Bird_size
         self.frame = 0
         self.dir = random.randint(0, 1)
+
         self.selection = random.randint(0, 3)
         self.image_size = Bird_image_size
 
@@ -91,12 +97,14 @@ class Monkey(Mob):
     def __init__(self):
         if Monkey.image == None:
             Monkey.image = load_image('mmonkey.png')
-        self.x = 0
+        self.x = 800
+        self.s_point = self.x
         self.y = 600
         self.SPP = SPP_Monkey
         self.Mob_size = Monkey_size
         self.frame = 0
         self.dir = random.randint(0, 1)
+
         self.selection = random.randint(0, 3)
         self.image_size = Monkey_image_size
 
@@ -107,7 +115,8 @@ class Cat(Mob):
     def __init__(self):
         if Cat.image == None:
             Cat.image = load_image('mcat.png')
-        self.x = 0
+        self.x = 800
+        self.s_point = self.x
         self.y = 400
         self.SPP = SPP_Cat
         self.Mob_size = Cat_size
