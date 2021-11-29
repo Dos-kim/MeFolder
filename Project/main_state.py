@@ -57,7 +57,8 @@ def draw():
     clear_canvas()
     for game_object in game_world.all_objects():
         game_object.draw()
-    delay(0.025)
+    # Someday, delay out
+    # delay(0.025)
     update_canvas()
 
 

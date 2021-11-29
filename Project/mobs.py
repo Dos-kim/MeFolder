@@ -22,6 +22,13 @@ SPS_Cat = (SPH_Cat * 1000.0 / 60.0 / 60.0)            # Meter / Sec , cat speed
 SPP_Monkey = (SPS_Monkey * PPM)             # Pixel / Sec , monkey speed
 SPP_Bird = (SPS_Bird * PPM)             # Pixel / Sec , bird speed
 SPP_Cat = (SPS_Cat * PPM)             # Pixel / Sec , cat speed
+
+
+TPA = 0.3
+APT = 1.0 / TPA
+FPA = 8
+
+
 #-------------------------------------
 #-------------------------------------
 
@@ -58,7 +65,7 @@ class Mob:
 
     def update(self):
         self.move_area(500)
-        self.frame = ((self.frame + 1) % 3) + self.selection * 3
+        self.frame = ((self.frame + FPA * APT * game_framework.frame_time) % 3) + self.selection * 3
         if self.dir == 0:
             self.x += self.SPP * game_framework.frame_time
         elif self.dir == 1:
@@ -67,9 +74,9 @@ class Mob:
 
     def draw(self):
         if self.dir == 0: # 0 is right
-            self.image.clip_draw(self.frame * self.image_size, 0 * self.image_size, self.image_size, self.image_size, self.x, self.y, self.Mob_size, self.Mob_size)
+            self.image.clip_draw(int(self.frame) * self.image_size, 0 * self.image_size, self.image_size, self.image_size, self.x, self.y, self.Mob_size, self.Mob_size)
         else: # 1 is left
-            self.image.clip_draw(self.frame * self.image_size, 1 * self.image_size, self.image_size, self.image_size, self.x, self.y, self.Mob_size, self.Mob_size)
+            self.image.clip_draw(int(self.frame) * self.image_size, 1 * self.image_size, self.image_size, self.image_size, self.x, self.y, self.Mob_size, self.Mob_size)
 
 
 
