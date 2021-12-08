@@ -104,7 +104,6 @@ class JumpState:
 
         # side move ( Change X)
         main_char.x += main_char.velocity * game_framework.frame_time
-        main_char.x = clamp(600, main_char.x, 1600 - 600)
 
     def draw(main_char):
 
@@ -176,7 +175,6 @@ class RunState:
             if main_char.frame <= LEFT - 7:
                 main_char.frame = LEFT
         main_char.x += main_char.velocity * game_framework.frame_time
-        main_char.x = clamp(600, main_char.x, 1600 - 600)
 
     def draw(main_char):
         if main_char.dir > 0:
@@ -208,7 +206,7 @@ next_state_table = {
 class Main_char:
 
     def __init__(self):
-        self.x, self.y = 800, 90
+        self.x, self.y = 50, 90
         self.image = load_image('sdog.png')
         self.frame = RIGHT
         self.dir = 1
@@ -217,6 +215,10 @@ class Main_char:
         self.event_que = []
         self.cur_state = StandState
         self.cur_state.enter(self, None)
+
+        self.parent = None
+
+
 
     def add_event(self, event):
         #Y insert 0, event?
@@ -231,9 +233,16 @@ class Main_char:
             self.cur_state = next_state_table[self.cur_state][event] #find next state
             self.cur_state.enter(self, event) # enter state
 
+    def get_bb(self):
+        return self.x - 30, self.y - 30, self.x + 30, self.y + 30
+
+    def get_leg_bb(self):
+        return self.x - 20, self.y - 39, self.x + 20, self.y - 32
 
     def draw(self):
         self.cur_state.draw(self)
+        draw_rectangle(*self.get_leg_bb())
+        draw_rectangle(*self.get_bb())
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:

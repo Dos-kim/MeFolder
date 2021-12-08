@@ -1,28 +1,27 @@
 from pico2d import *
 import game_world
+import server
 import game_framework
 
-
+from ground import Background
 from character import Main_char
 from mobs import *
 
 
 name = "MainState"
 
-main_char = None
-mobs = None
-map = None
+
 
 
 def enter():
-    global main_char
-    main_char = Main_char()
-    game_world.add_object(main_char, 1)
+    server.main_char = Main_char()
+    game_world.add_object(server.main_char, 1)
 
-    global mobs
-    mobs = [Bird(), Monkey(), Cat()]
-    game_world.add_objects(mobs, 1)
+    server.mobs = [Bird(), Monkey(), Cat()]
+    game_world.add_objects(server.mobs, 1)
 
+    server.background = Background()
+    game_world.add_object(server.background, 0)
 
 def exit():
     game_world.clear()
@@ -44,7 +43,7 @@ def key_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
                 game_framework.quit()
         else:
-            main_char.handle_event(event)
+            server.main_char.handle_event(event)
 
 
 
