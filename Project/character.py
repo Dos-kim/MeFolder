@@ -214,7 +214,7 @@ next_state_table = {
 class Main_char:
 
     def __init__(self):
-        self.x, self.y = 50, 60
+        self.x, self.y = 50, 80
         self.image = load_image('sdog.png')
         self.frame = RIGHT
         self.dir = 1
@@ -242,18 +242,32 @@ class Main_char:
             self.cur_state = next_state_table[self.cur_state][event] #find next state
             self.cur_state.enter(self, event) # enter state
 
-    def get_bb(self):
+    def get_body_bb(self):
         cx, cy = self.x - server.background.window_left, self.y - server.background.window_bottom
-        return cx - 30, cy - 30, cx + 30, cy + 30
+        if self.dir > 0:
+            return cx - 30, cy - 30, cx + 18, cy + 5
+        else:
+            return cx - 18, cy - 30, cx + 30, cy + 5
 
     def get_leg_bb(self):
         cx, cy = self.x - server.background.window_left, self.y - server.background.window_bottom
-        return cx - 20, cy - 39, cx + 20, cy - 32
+        if self.dir > 0:
+            return cx - 20, cy - 39, cx + 20, cy - 32
+        else:
+            return cx - 20, cy - 39, cx + 20, cy - 32
+
+    def get_head_bb(self):
+        cx, cy = self.x - server.background.window_left, self.y - server.background.window_bottom
+        if self.dir > 0:
+            return cx - 5, cy - 10, cx + 35, cy + 30
+        else:
+            return cx - 35, cy + 30, cx + 5, cy - 10
 
     def draw(self):
         self.cur_state.draw(self)
         draw_rectangle(*self.get_leg_bb())
-        draw_rectangle(*self.get_bb())
+        draw_rectangle(*self.get_body_bb())
+        draw_rectangle(*self.get_head_bb())
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:

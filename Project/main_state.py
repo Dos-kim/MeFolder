@@ -24,8 +24,8 @@ def enter():
     server.background = Background()
     game_world.add_object(server.background, 0)
 
-    server.bricks = Brick()
-    game_world.add_object(server.bricks, 0)
+    for brick in server.bricks:
+        game_world.add_object(brick, 1)
 
 def exit():
     game_world.clear()
