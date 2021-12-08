@@ -5,6 +5,7 @@ import game_framework
 
 from ground import Background
 from character import Main_char
+from brick import Brick
 from mobs import *
 
 
@@ -17,11 +18,14 @@ def enter():
     server.main_char = Main_char()
     game_world.add_object(server.main_char, 1)
 
-    server.mobs = [Bird(), Monkey(), Cat()]
-    game_world.add_objects(server.mobs, 1)
+    # server.mobs = [Bird(), Monkey(), Cat()]
+    # game_world.add_objects(server.mobs, 1)
 
     server.background = Background()
     game_world.add_object(server.background, 0)
+
+    server.bricks = Brick()
+    game_world.add_object(server.bricks, 0)
 
 def exit():
     game_world.clear()

@@ -1,5 +1,6 @@
 from pico2d import *
 import game_framework
+import server
 
 # Location Number
 RIGHT = 12
@@ -49,14 +50,14 @@ FPA = 8
 class JumpState:
     def enter(main_char, event):
         if event == SPACE_DOWN:
-            if main_char.y > 90: # not touching grand exeception or run double jump
+            if main_char.y > main_char.cur_y: # not touching grand exeception or run double jump
                 pass
             else:
                 main_char.timer = 1000
         elif event == SPACE_UP:
             if main_char.timer >= 500:
                 main_char.timer = 500
-            if main_char.y == 90:
+            if main_char.y == main_char.cur_y:
                 main_char.timer = 0
                 if main_char.velocity != 0:
                     main_char.add_event(BACKR_TIMER)
@@ -89,13 +90,13 @@ class JumpState:
         main_char.timer -= 1
         if main_char.timer > 500:
             main_char.y += RSPP * game_framework.frame_time
-            if main_char.y >= 300:
-                main_char.y = 300
+            if main_char.y >= main_char.cur_y + 210:
+                main_char.y = main_char.cur_y + 210
                 main_char.timer = 500
         elif main_char.timer <= 500:
             main_char.y -= RSPP * game_framework.frame_time
-            if main_char.y <= 90:
-                main_char.y = 90
+            if main_char.y <= main_char.cur_y:
+                main_char.y = main_char.cur_y
                 main_char.timer = 0
                 if main_char.velocity != 0:
                     main_char.add_event(BACKR_TIMER)
@@ -107,16 +108,18 @@ class JumpState:
 
     def draw(main_char):
 
+        cx, cy = main_char.x - server.background.window_left , main_char.y - server.background.window_bottom
+
         if main_char.timer > 500:
             if main_char.dir > 0:
-                main_char.image.clip_draw(int(main_char.frame) * 573, 523 * JUMPUP, 573, 523, main_char.x, main_char.y, char_size, char_size)
+                main_char.image.clip_draw(int(main_char.frame) * 573, 523 * JUMPUP, 573, 523, cx, cy, char_size, char_size)
             else:
-                main_char.image.clip_draw(int(main_char.frame) * 573, 523 * JUMPUP, 573, 523, main_char.x, main_char.y, char_size, char_size)
+                main_char.image.clip_draw(int(main_char.frame) * 573, 523 * JUMPUP, 573, 523, cx, cy, char_size, char_size)
         elif main_char.timer <= 500:
             if main_char.dir > 0:
-                main_char.image.clip_draw(int(main_char.frame) * 573, 523 * JUMPDOWN, 573, 523, main_char.x, main_char.y, char_size, char_size)
+                main_char.image.clip_draw(int(main_char.frame) * 573, 523 * JUMPDOWN, 573, 523, cx, cy, char_size, char_size)
             else:
-                main_char.image.clip_draw(int(main_char.frame) * 573, 523 * JUMPDOWN, 573, 523, main_char.x, main_char.y, char_size, char_size)
+                main_char.image.clip_draw(int(main_char.frame) * 573, 523 * JUMPDOWN, 573, 523, cx, cy, char_size, char_size)
 
 class StandState:
     def enter(main_char, event):
@@ -145,10 +148,12 @@ class StandState:
 
     def draw(main_char):
 
+        cx, cy = main_char.x - server.background.window_left , main_char.y - server.background.window_bottom
+
         if main_char.dir > 0:
-            main_char.image.clip_draw(int(main_char.frame) * 573, 523 * STANDING, 573, 523, main_char.x, main_char.y, char_size, char_size)
+            main_char.image.clip_draw(int(main_char.frame) * 573, 523 * STANDING, 573, 523, cx, cy, char_size, char_size)
         else:
-            main_char.image.clip_draw(int(main_char.frame) * 573, 523 * STANDING, 573, 523, main_char.x, main_char.y, char_size, char_size)
+            main_char.image.clip_draw(int(main_char.frame) * 573, 523 * STANDING, 573, 523, cx, cy, char_size, char_size)
 
 class RunState:
     def enter(main_char, event):
@@ -177,10 +182,13 @@ class RunState:
         main_char.x += main_char.velocity * game_framework.frame_time
 
     def draw(main_char):
+
+        cx, cy = main_char.x - server.background.window_left , main_char.y - server.background.window_bottom
+
         if main_char.dir > 0:
-            main_char.image.clip_draw(int(main_char.frame) * 573, 523 * RUNNING, 573, 523, main_char.x, main_char.y, char_size, char_size)
+            main_char.image.clip_draw(int(main_char.frame) * 573, 523 * RUNNING, 573, 523, cx, cy, char_size, char_size)
         else:
-            main_char.image.clip_draw(int(main_char.frame) * 573, 523 * RUNNING, 573, 523, main_char.x, main_char.y, char_size, char_size)
+            main_char.image.clip_draw(int(main_char.frame) * 573, 523 * RUNNING, 573, 523, cx, cy, char_size, char_size)
 
 
 
@@ -206,7 +214,7 @@ next_state_table = {
 class Main_char:
 
     def __init__(self):
-        self.x, self.y = 50, 90
+        self.x, self.y = 50, 60
         self.image = load_image('sdog.png')
         self.frame = RIGHT
         self.dir = 1
@@ -215,6 +223,7 @@ class Main_char:
         self.event_que = []
         self.cur_state = StandState
         self.cur_state.enter(self, None)
+        self.cur_y = self.y
 
         self.parent = None
 
@@ -234,10 +243,12 @@ class Main_char:
             self.cur_state.enter(self, event) # enter state
 
     def get_bb(self):
-        return self.x - 30, self.y - 30, self.x + 30, self.y + 30
+        cx, cy = self.x - server.background.window_left, self.y - server.background.window_bottom
+        return cx - 30, cy - 30, cx + 30, cy + 30
 
     def get_leg_bb(self):
-        return self.x - 20, self.y - 39, self.x + 20, self.y - 32
+        cx, cy = self.x - server.background.window_left, self.y - server.background.window_bottom
+        return cx - 20, cy - 39, cx + 20, cy - 32
 
     def draw(self):
         self.cur_state.draw(self)
